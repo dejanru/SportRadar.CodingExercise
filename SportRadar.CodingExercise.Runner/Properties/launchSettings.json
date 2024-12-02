@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SportRadar.CodingExercise.Runner": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
