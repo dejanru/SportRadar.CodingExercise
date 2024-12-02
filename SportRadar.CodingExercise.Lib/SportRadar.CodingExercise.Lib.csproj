@@ -10,8 +10,4 @@
     <Compile Remove="FootballMatch.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

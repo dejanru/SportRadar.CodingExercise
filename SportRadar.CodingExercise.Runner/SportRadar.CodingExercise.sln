@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163 d17.12
+VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportRadar.CodingExercise.Runner", "SportRadar.CodingExercise.Runner.csproj", "{EFE17ED6-8B1A-4AD4-BFEC-A2C5C09774A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportRadar.CodingExercise.Lib", "..\SportRadar.CodingExercise.Lib\SportRadar.CodingExercise.Lib.csproj", "{C2111988-9E1B-480A-AC82-39ACAA1ECFF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportRadar.CodingExercise.Lib.Tests", "..\SportRadar.CodingExercise.Lib.Tests\SportRadar.CodingExercise.Lib.Tests.csproj", "{FB62375F-6187-4296-A778-712062BF0ABC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectData", "ProjectData", "{BAD86FD4-F6E5-4821-A0CE-78136B5974EE}"
+	ProjectSection(SolutionItems) = preProject
+		..\Coding Exercise v1.11.pdf = ..\Coding Exercise v1.11.pdf
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
