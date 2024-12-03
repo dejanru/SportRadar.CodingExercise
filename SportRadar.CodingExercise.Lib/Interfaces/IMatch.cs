@@ -2,7 +2,7 @@
 {
     public interface IMatch
     {
-        ITeam homeTeam { get; set; }
-        ITeam awayTeam { get; set; }
+        ITeam HomeTeam { get; set; }
+        ITeam AwayTeam { get; set; }
     }
 }

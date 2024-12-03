@@ -1,6 +1,6 @@
 ﻿namespace SportRadar.CodingExercise.Lib.Interfaces
 {
-    public interface IWorldCup
+    public interface IWorldCupHandler
     {
         IMatch StartNewMatch(string homeTeam, string awayTeam);
         ICollection<IMatch> GetRunningMatches();

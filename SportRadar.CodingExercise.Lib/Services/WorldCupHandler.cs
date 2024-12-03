@@ -1,22 +1,23 @@
 ﻿using SportRadar.CodingExercise.Lib.Interfaces;
+using SportRadar.CodingExercise.Lib.Models;
 
 namespace SportRadar.CodingExercise.Lib.Services
 {
-    public class WorldCupServiceHandler : IWorldCupService
+    public class WorldCupHandler : IWorldCupHandler
     {
-        private readonly IWorldCupService _worldCupService;
         private ICollection<IMatch> _runningMatches;
         private ICollection<IMatch> _archiveMatches;
-        public WorldCupServiceHandler(IWorldCupService worldCupService, IMatch match, ITeam team)
+        private IWorldCupService _worldCupService;
+        public WorldCupHandler(IWorldCupService worldCupService, IMatch match, ITeam team)
         {
-            _worldCupService = worldCupService;
             _runningMatches = new List<IMatch>();
             _archiveMatches = new List<IMatch>();
+            _worldCupService = worldCupService;
         }
 
         public ICollection<IMatch> GetArchiveMatches()
         {
-            return _worldCupService.GetArchiveMatches();
+            return _archiveMatches;
         }
 
         public ICollection<IMatch> GetRunningMatches()
@@ -34,14 +35,14 @@ namespace SportRadar.CodingExercise.Lib.Services
 
         public IMatch UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
-            var match = _runningMatches.FirstOrDefault(x => x.homeTeam.Name == homeTeam && x.awayTeam.Name == awayTeam);
+            var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
             if (match == null)
             {
                 throw new ArgumentException("No running match");
             }
 
-            match.homeTeam.Score = homeScore;
-            match.awayTeam.Score = awayScore;
+            match.HomeTeam.Score = homeScore;
+            match.AwayTeam.Score = awayScore;
 
             return match;
         }

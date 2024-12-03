@@ -14,7 +14,7 @@ namespace SportRadar.CodingExercise.Lib.Models
             _awayTeam = new Team(awayTeamName);
         }
 
-        public ITeam homeTeam { get => _homeTeam; set => _homeTeam = value; }
-        public ITeam awayTeam { get => _awayTeam; set => _awayTeam = value; }
+        public ITeam HomeTeam { get => _homeTeam; set => _homeTeam = value; }
+        public ITeam AwayTeam { get => _awayTeam; set => _awayTeam = value; }
     }
 }
