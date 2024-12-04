@@ -1,8 +1,8 @@
 using NSubstitute;
-using NSubstitute.Core;
 using SportRadar.CodingExercise.Lib.Interfaces;
 using SportRadar.CodingExercise.Lib.Models;
 using SportRadar.CodingExercise.Lib.Services;
+using System.Collections.Immutable;
 
 namespace SportRadar.CodingExercise.Lib.Tests
 {
@@ -28,6 +28,7 @@ namespace SportRadar.CodingExercise.Lib.Tests
         private IWorldCupService _worldCupService;
 
         private WorldCupHandler handler;
+        // jmock
 
         [SetUp]
         public void Setup()
@@ -90,10 +91,22 @@ namespace SportRadar.CodingExercise.Lib.Tests
         {
             // Arrange
             IMatch fixtureMatch = new Match(homeTeam, awayTeam);
-            handler.StartNewMatch(homeTeam, awayTeam)
-                    .ReturnsForAnyArgs(fixtureMatch);
+            ICollection<IMatch> matches =
+            [
+                new Match("Mexico", "Canada"),
+                new Match("Spain", "Brazil"),
+                new Match("Germany", "France"),
+                new Match("Uruguay", "Italy"),
+                new Match("Argentina", "Australia"),
+            ];
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(fixtureMatch);
+            _worldCupService.GetRunningMatches().Returns(matches);
 
-            handler.StartNewMatch(homeTeam, awayTeam);
+            fixtureMatch.HomeTeam.Score = homeScore;
+            fixtureMatch.AwayTeam.Score = awayScore;
+            _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(fixtureMatch);
+
+            //handler.StartNewMatch(homeTeam, awayTeam);
 
             var runningMatches = handler.GetRunningMatches();
             Assert.IsNotNull(runningMatches);
@@ -102,8 +115,11 @@ namespace SportRadar.CodingExercise.Lib.Tests
             Assert.IsNotNull(match);
 
             handler.UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
+            // update list what shall be returned after update
+            matches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam).HomeTeam.Score = homeScore;
+            matches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam).AwayTeam.Score = awayScore;
 
-            // ba careful : what if null?
+            // be careful : what if null?
             var updatedMatch = runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
 
             Assert.IsNotNull(updatedMatch);
@@ -134,18 +150,40 @@ namespace SportRadar.CodingExercise.Lib.Tests
             //      c.Germany 2 - France 2
             //      d.Uruguay 6 - Italy 6
             //      e.Argentina 3 - Australia 1
-            IMatch fixtureMatch = new Match("Mexico", "Canada");
-            handler
-                            .StartNewMatch("Mexico", "Canada")
-                            .ReturnsForAnyArgs(fixtureMatch);
 
-            handler.StartNewMatch("Mexico", "Canada");
-            handler.StartNewMatch("Spain", "Brazil");
-            handler.StartNewMatch("Germany", "France");
-            handler.StartNewMatch("Uruguay", "Italy");
-            handler.StartNewMatch("Argentina", "Australia");
+            // could be simpler, but we need to have some time betweeen ticks to be able to distinguish correct order
+            ICollection<IMatch> matches = new List<IMatch>();
+            matches.Add(new Match("Mexico", "Canada", 0, 5));
+            matches.Add(new Match("Spain", "Brazil", 10, 2));
+            matches.Add(new Match("Germany", "France", 2, 2));
+            matches.Add(new Match("Uruguay", "Italy", 6, 6));
+            matches.Add(new Match("Argentina", "Australia", 3, 1));
+
+            _worldCupService.GetRunningMatches().Returns(matches);
+
+            //foreach (var match in matches)
+            //{
+            //    _worldCupService.UpdateScore(match.HomeTeam.Name, match.AwayTeam.Name, 0, 0).Returns(fixtureMatch);
+            //}
+            //string homeTeam = matches.First().HomeTeam.Name;
+            //string awayTeam = matches.First().AwayTeam.Name;
+            //IMatch fixtureMatch = new Match(homeTeam, awayTeam);
+            //fixtureMatch.HomeTeam.Score = homeScore;
+            //fixtureMatch.AwayTeam.Score = awayScore;
+            //_worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(fixtureMatch);
 
             var runningMatches = handler.GetRunningMatches();
+            Assert.IsNotNull(runningMatches);
+
+            //handler.StartNewMatch("home", "away");
+
+            //IMatch updatedMatch = handler.UpdateScore("Mexico", "Canada", 0, 5);
+            //matches.FirstOrDefault(x => x.HomeTeam.Name == updatedMatch.HomeTeam.Name &&
+            //                            x.AwayTeam.Name == updatedMatch.AwayTeam.Name).HomeTeam.Score = updatedMatch.HomeTeam.Score;
+            //matches.FirstOrDefault(x => x.HomeTeam.Name == updatedMatch.HomeTeam.Name &&
+            //                            x.AwayTeam.Name == updatedMatch.AwayTeam.Name).AwayTeam.Score = updatedMatch.AwayTeam.Score;
+
+            var res = handler.GetSummaryOfMatches();
             // update scores to reflect provided scores (shall be one call since only time of match start is important for order)
             // we shall not call finish match - remember, we only want summary of matches in progress
 
@@ -155,6 +193,12 @@ namespace SportRadar.CodingExercise.Lib.Tests
             //      3.Mexico 0 - Canada 5
             //      4.Argentina 3 - Australia 1
             //      5.Germany 2 - France 2
+
+            Assert.That(res.ToList()[0].Value.HomeTeam.Name, Is.EqualTo("Uruguay"));
+            Assert.That(res.ToList()[1].Value.HomeTeam.Name, Is.EqualTo("Spain"));
+            Assert.That(res.ToList()[2].Value.HomeTeam.Name, Is.EqualTo("Mexico"));
+            Assert.That(res.ToList()[3].Value.HomeTeam.Name, Is.EqualTo("Argentina"));
+            Assert.That(res.ToList()[4].Value.HomeTeam.Name, Is.EqualTo("Germany"));
         }
     }
 }

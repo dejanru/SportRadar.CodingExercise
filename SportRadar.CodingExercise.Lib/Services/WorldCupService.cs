@@ -1,29 +1,49 @@
 ﻿using SportRadar.CodingExercise.Lib.Interfaces;
+using SportRadar.CodingExercise.Lib.Models;
 
 namespace SportRadar.CodingExercise.Lib.Services
 {
     public class WorldCupService : IWorldCupService
     {
-        public WorldCupService() { }
+        private ICollection<IMatch> _runningMatches;
+        private ICollection<IMatch> _archiveMatches;
+
+        public WorldCupService()
+        {
+            _runningMatches = new List<IMatch>();
+            _archiveMatches = new List<IMatch>();
+        }
 
         public ICollection<IMatch> GetArchiveMatches()
         {
-            throw new NotImplementedException();
+            return _archiveMatches;
         }
 
         public ICollection<IMatch> GetRunningMatches()
         {
-            throw new NotImplementedException();
+            return _runningMatches;
         }
 
         public IMatch StartNewMatch(string homeTeam, string awayTeam)
         {
-            throw new NotImplementedException();
+            var match = new Match(homeTeam, awayTeam);
+            _runningMatches.Add(match);
+
+            return match;
         }
 
         public IMatch UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
-            throw new NotImplementedException();
+            var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
+            if (match == null)
+            {
+                throw new ArgumentException("No running match");
+            }
+
+            match.HomeTeam.Score = homeScore;
+            match.AwayTeam.Score = awayScore;
+
+            return match;
         }
     }
 }
