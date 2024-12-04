@@ -11,6 +11,13 @@ namespace SportRadar.CodingExercise.Lib.Services
             _worldCupService = worldCupService;
         }
 
+        public IMatch FinishMatch(string homeTeam, string awayTeam)
+        {
+            var match = _worldCupService.FinishMatch(homeTeam, awayTeam);
+
+            return match;
+        }
+
         public ICollection<IMatch> GetArchiveMatches()
         {
             return _worldCupService.GetArchiveMatches();

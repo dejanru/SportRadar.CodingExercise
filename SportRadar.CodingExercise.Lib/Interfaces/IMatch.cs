@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SportRadar.CodingExercise.Lib.Interfaces
+﻿namespace SportRadar.CodingExercise.Lib.Interfaces
 {
     public interface IMatch
     {

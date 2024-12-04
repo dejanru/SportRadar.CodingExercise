@@ -7,5 +7,7 @@
         ICollection<IMatch> GetArchiveMatches();
 
         IMatch UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore);
+
+        IMatch FinishMatch(string homeTeam, string awayTeam);
     }
 }

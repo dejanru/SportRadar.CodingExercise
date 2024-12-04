@@ -1,8 +1,9 @@
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using SportRadar.CodingExercise.Lib.Interfaces;
 using SportRadar.CodingExercise.Lib.Models;
 using SportRadar.CodingExercise.Lib.Services;
-using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace SportRadar.CodingExercise.Lib.Tests
 {
@@ -22,7 +23,6 @@ namespace SportRadar.CodingExercise.Lib.Tests
 
     public class WorldCupTests
     {
-        //private IWorldCupService _worldCupServiceInstance;
         private IMatch _match;
         private ITeam _team;
         private IWorldCupService _worldCupService;
@@ -70,7 +70,7 @@ namespace SportRadar.CodingExercise.Lib.Tests
             // handler.GetRunningMatches();
             // check if already contains combination of home/away match
             // Arrange
-            IMatch fixtureMatch = new Match(homeTeam, awayTeam);
+            IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
             handler.StartNewMatch(homeTeam, awayTeam)
                     .ReturnsForAnyArgs(fixtureMatch);
 
@@ -90,14 +90,14 @@ namespace SportRadar.CodingExercise.Lib.Tests
         public void TestWorldCup_UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
             // Arrange
-            IMatch fixtureMatch = new Match(homeTeam, awayTeam);
+            IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
             ICollection<IMatch> matches =
             [
-                new Match("Mexico", "Canada"),
-                new Match("Spain", "Brazil"),
-                new Match("Germany", "France"),
-                new Match("Uruguay", "Italy"),
-                new Match("Argentina", "Australia"),
+                new Models.Match("Mexico", "Canada"),
+                new Models.Match("Spain", "Brazil"),
+                new Models.Match("Germany", "France"),
+                new Models.Match("Uruguay", "Italy"),
+                new Models.Match("Argentina", "Australia"),
             ];
             _worldCupService.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(fixtureMatch);
             _worldCupService.GetRunningMatches().Returns(matches);
@@ -129,12 +129,41 @@ namespace SportRadar.CodingExercise.Lib.Tests
 
         [Test]
         [TestCase("Mexico", "Canada")]
+        [TestCase("Spain", "Brazil")]
+        [TestCase("Germany", "France")]
+        [TestCase("Uruguay", "Italy")]
+        [TestCase("Argentina", "Australia")]
         public void TestWorldCup_FinishMatchInProgress(string homeTeam, string awayTeam)
         {
             // start new match
+            IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(fixtureMatch);
+
+            fixtureMatch.HomeTeam.Score = 1;
+            fixtureMatch.AwayTeam.Score = 0;
+            _worldCupService.UpdateScore(homeTeam, awayTeam, 1, 0).Returns(fixtureMatch);
+
+            ICollection<IMatch> matches = [ fixtureMatch ];
+            ICollection<IMatch> archiveMatches = [];
+            _worldCupService.GetRunningMatches().Returns(matches);
+            _worldCupService.GetArchiveMatches().Returns(archiveMatches);
+
+
+
             // check list of started matches - shall be included
             // just update the score - to have some data there
             // finish match
+            _worldCupService.FinishMatch(homeTeam, awayTeam).Returns(fixtureMatch);
+
+            handler.StartNewMatch(homeTeam, awayTeam);
+            handler.UpdateScore(homeTeam, awayTeam, 1, 0);
+            var runningMatches_pre = handler.GetRunningMatches();
+            var archiveMatches_pre = handler.GetArchiveMatches();
+            handler.FinishMatch(homeTeam, awayTeam);
+
+            var runningMatches_post = handler.GetRunningMatches();
+            var archiveMatches_post = handler.GetArchiveMatches();
+
             // check list of started matches - shall be removed
             // check list of archive matches - shall be included
         }
@@ -151,40 +180,23 @@ namespace SportRadar.CodingExercise.Lib.Tests
             //      d.Uruguay 6 - Italy 6
             //      e.Argentina 3 - Australia 1
 
-            // could be simpler, but we need to have some time betweeen ticks to be able to distinguish correct order
+            // could be simpler, but we need to have some time betweeen ticks to be able to distinguish correct order of starting match
             ICollection<IMatch> matches = new List<IMatch>();
-            matches.Add(new Match("Mexico", "Canada", 0, 5));
-            matches.Add(new Match("Spain", "Brazil", 10, 2));
-            matches.Add(new Match("Germany", "France", 2, 2));
-            matches.Add(new Match("Uruguay", "Italy", 6, 6));
-            matches.Add(new Match("Argentina", "Australia", 3, 1));
+            matches.Add(new Models.Match("Mexico", "Canada", 0, 5));
+            matches.Add(new Models.Match("Spain", "Brazil", 10, 2));
+            matches.Add(new Models.Match("Germany", "France", 2, 2));
+            matches.Add(new Models.Match("Uruguay", "Italy", 6, 6));
+            matches.Add(new Models.Match("Argentina", "Australia", 3, 1));
 
             _worldCupService.GetRunningMatches().Returns(matches);
 
-            //foreach (var match in matches)
-            //{
-            //    _worldCupService.UpdateScore(match.HomeTeam.Name, match.AwayTeam.Name, 0, 0).Returns(fixtureMatch);
-            //}
-            //string homeTeam = matches.First().HomeTeam.Name;
-            //string awayTeam = matches.First().AwayTeam.Name;
-            //IMatch fixtureMatch = new Match(homeTeam, awayTeam);
-            //fixtureMatch.HomeTeam.Score = homeScore;
-            //fixtureMatch.AwayTeam.Score = awayScore;
-            //_worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(fixtureMatch);
-
+            // check we have matches data
             var runningMatches = handler.GetRunningMatches();
             Assert.IsNotNull(runningMatches);
 
-            //handler.StartNewMatch("home", "away");
-
-            //IMatch updatedMatch = handler.UpdateScore("Mexico", "Canada", 0, 5);
-            //matches.FirstOrDefault(x => x.HomeTeam.Name == updatedMatch.HomeTeam.Name &&
-            //                            x.AwayTeam.Name == updatedMatch.AwayTeam.Name).HomeTeam.Score = updatedMatch.HomeTeam.Score;
-            //matches.FirstOrDefault(x => x.HomeTeam.Name == updatedMatch.HomeTeam.Name &&
-            //                            x.AwayTeam.Name == updatedMatch.AwayTeam.Name).AwayTeam.Score = updatedMatch.AwayTeam.Score;
-
             var res = handler.GetSummaryOfMatches();
             // update scores to reflect provided scores (shall be one call since only time of match start is important for order)
+            // mazbe we do not need it in this test
             // we shall not call finish match - remember, we only want summary of matches in progress
 
             // get summary in correct order :
@@ -193,12 +205,12 @@ namespace SportRadar.CodingExercise.Lib.Tests
             //      3.Mexico 0 - Canada 5
             //      4.Argentina 3 - Australia 1
             //      5.Germany 2 - France 2
-
-            Assert.That(res.ToList()[0].Value.HomeTeam.Name, Is.EqualTo("Uruguay"));
-            Assert.That(res.ToList()[1].Value.HomeTeam.Name, Is.EqualTo("Spain"));
-            Assert.That(res.ToList()[2].Value.HomeTeam.Name, Is.EqualTo("Mexico"));
-            Assert.That(res.ToList()[3].Value.HomeTeam.Name, Is.EqualTo("Argentina"));
-            Assert.That(res.ToList()[4].Value.HomeTeam.Name, Is.EqualTo("Germany"));
+            var resultsList = res.ToList();
+            Assert.That(resultsList[0].Value.HomeTeam.Name, Is.EqualTo("Uruguay"));
+            Assert.That(resultsList[1].Value.HomeTeam.Name, Is.EqualTo("Spain"));
+            Assert.That(resultsList[2].Value.HomeTeam.Name, Is.EqualTo("Mexico"));
+            Assert.That(resultsList[3].Value.HomeTeam.Name, Is.EqualTo("Argentina"));
+            Assert.That(resultsList[4].Value.HomeTeam.Name, Is.EqualTo("Germany"));
         }
     }
 }

@@ -6,5 +6,6 @@
         ICollection<IMatch> GetRunningMatches();
         ICollection<IMatch> GetArchiveMatches();
         IOrderedEnumerable<KeyValuePair<Tuple<int, long>, IMatch>> GetSummaryOfMatches();
+        IMatch FinishMatch(string homeTeam, string awayTeam);
     }
 }

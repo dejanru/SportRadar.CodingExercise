@@ -14,6 +14,15 @@ namespace SportRadar.CodingExercise.Lib.Services
             _archiveMatches = new List<IMatch>();
         }
 
+        public IMatch FinishMatch(string homeTeam, string awayTeam)
+        {
+            var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
+            _runningMatches.Remove(match);
+            _archiveMatches.Add(match);
+
+            return match;
+        }
+
         public ICollection<IMatch> GetArchiveMatches()
         {
             return _archiveMatches;
