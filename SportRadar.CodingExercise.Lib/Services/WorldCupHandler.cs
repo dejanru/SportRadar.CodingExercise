@@ -4,7 +4,6 @@ namespace SportRadar.CodingExercise.Lib.Services
 {
     public class WorldCupHandler : IWorldCupHandler
     {
-
         private IWorldCupService _worldCupService;
         public WorldCupHandler(IWorldCupService worldCupService, IMatch match, ITeam team)
         {

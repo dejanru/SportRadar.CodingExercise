@@ -37,7 +37,7 @@ namespace SportRadar.CodingExercise.Lib.Services
             var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
             if (match == null)
             {
-                throw new ArgumentException("No running match");
+                throw new ArgumentException("No running match between " + homeTeam + " and " + awayTeam);
             }
 
             match.HomeTeam.Score = homeScore;
@@ -45,6 +45,7 @@ namespace SportRadar.CodingExercise.Lib.Services
 
             return _runningMatches;
         }
+
         public Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam)
         {
             var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
@@ -53,6 +54,5 @@ namespace SportRadar.CodingExercise.Lib.Services
 
             return Tuple.Create(_runningMatches, _archiveMatches);
         }
-
     }
 }
