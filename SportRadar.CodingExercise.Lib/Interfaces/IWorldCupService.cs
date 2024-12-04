@@ -2,12 +2,12 @@
 {
     public interface IWorldCupService
     {
-        IMatch StartNewMatch(string homeTeam, string awayTeam);
+        ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam);
         ICollection<IMatch> GetRunningMatches();
         ICollection<IMatch> GetArchiveMatches();
 
-        IMatch UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore);
+        ICollection<IMatch> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore);
 
-        IMatch FinishMatch(string homeTeam, string awayTeam);
+        Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam);
     }
 }

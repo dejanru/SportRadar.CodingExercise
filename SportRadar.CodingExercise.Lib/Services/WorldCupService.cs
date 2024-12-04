@@ -14,15 +14,6 @@ namespace SportRadar.CodingExercise.Lib.Services
             _archiveMatches = new List<IMatch>();
         }
 
-        public IMatch FinishMatch(string homeTeam, string awayTeam)
-        {
-            var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
-            _runningMatches.Remove(match);
-            _archiveMatches.Add(match);
-
-            return match;
-        }
-
         public ICollection<IMatch> GetArchiveMatches()
         {
             return _archiveMatches;
@@ -33,15 +24,15 @@ namespace SportRadar.CodingExercise.Lib.Services
             return _runningMatches;
         }
 
-        public IMatch StartNewMatch(string homeTeam, string awayTeam)
+        public ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam)
         {
             var match = new Match(homeTeam, awayTeam);
             _runningMatches.Add(match);
 
-            return match;
+            return _runningMatches;
         }
 
-        public IMatch UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
+        public ICollection<IMatch> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
             var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
             if (match == null)
@@ -52,7 +43,16 @@ namespace SportRadar.CodingExercise.Lib.Services
             match.HomeTeam.Score = homeScore;
             match.AwayTeam.Score = awayScore;
 
-            return match;
+            return _runningMatches;
         }
+        public Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam)
+        {
+            var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
+            _runningMatches.Remove(match);
+            _archiveMatches.Add(match);
+
+            return Tuple.Create(_runningMatches, _archiveMatches);
+        }
+
     }
 }

@@ -11,12 +11,6 @@ namespace SportRadar.CodingExercise.Lib.Services
             _worldCupService = worldCupService;
         }
 
-        public IMatch FinishMatch(string homeTeam, string awayTeam)
-        {
-            var match = _worldCupService.FinishMatch(homeTeam, awayTeam);
-
-            return match;
-        }
 
         public ICollection<IMatch> GetArchiveMatches()
         {
@@ -42,18 +36,25 @@ namespace SportRadar.CodingExercise.Lib.Services
             return keyValuePairs.OrderByDescending(k => k.Key);
         }
 
-        public IMatch StartNewMatch(string homeTeam, string awayTeam)
+        public ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam)
         {
             var match = _worldCupService.StartNewMatch(homeTeam, awayTeam);
 
             return match;
         }
 
-        public IMatch UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
+        public ICollection<IMatch> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
             var match = _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
 
             return match;
+        }
+
+        public Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam)
+        {
+            var lists = _worldCupService.FinishMatch(homeTeam, awayTeam);
+
+            return lists;
         }
     }
 }

@@ -71,14 +71,14 @@ namespace SportRadar.CodingExercise.Lib.Tests
             // check if already contains combination of home/away match
             // Arrange
             IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
-            handler.StartNewMatch(homeTeam, awayTeam)
-                    .ReturnsForAnyArgs(fixtureMatch);
+            ICollection<IMatch> matches = [fixtureMatch];
+            handler.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(matches);
 
             // well, use service to calculate the data and then compare with fixture and assert for correctness
             var calculatedData = handler.StartNewMatch(homeTeam, awayTeam);
 
             Assert.IsNotNull(calculatedData);
-            Assert.That(calculatedData, Is.EqualTo(fixtureMatch));
+            Assert.That(calculatedData, Is.EqualTo(matches));
         }
 
         [Test]
@@ -99,12 +99,12 @@ namespace SportRadar.CodingExercise.Lib.Tests
                 new Models.Match("Uruguay", "Italy"),
                 new Models.Match("Argentina", "Australia"),
             ];
-            _worldCupService.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(fixtureMatch);
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).Returns(matches);
             _worldCupService.GetRunningMatches().Returns(matches);
 
             fixtureMatch.HomeTeam.Score = homeScore;
             fixtureMatch.AwayTeam.Score = awayScore;
-            _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(fixtureMatch);
+            _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(matches);
 
             //handler.StartNewMatch(homeTeam, awayTeam);
 
@@ -137,35 +137,40 @@ namespace SportRadar.CodingExercise.Lib.Tests
         {
             // start new match
             IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
-            _worldCupService.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(fixtureMatch);
+            ICollection<IMatch> runningMatches = [fixtureMatch];
+            ICollection<IMatch> archiveMatches = [];
+
+
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).Returns(runningMatches);
 
             fixtureMatch.HomeTeam.Score = 1;
             fixtureMatch.AwayTeam.Score = 0;
-            _worldCupService.UpdateScore(homeTeam, awayTeam, 1, 0).Returns(fixtureMatch);
+            _worldCupService.UpdateScore(homeTeam, awayTeam, 1, 0).Returns(runningMatches);
 
-            ICollection<IMatch> matches = [ fixtureMatch ];
-            ICollection<IMatch> archiveMatches = [];
-            _worldCupService.GetRunningMatches().Returns(matches);
+            _worldCupService.GetRunningMatches().Returns(runningMatches);
             _worldCupService.GetArchiveMatches().Returns(archiveMatches);
 
 
 
             // check list of started matches - shall be included
-            // just update the score - to have some data there
             // finish match
-            _worldCupService.FinishMatch(homeTeam, awayTeam).Returns(fixtureMatch);
+            // simulate moving between lists
+            runningMatches = [];
+            archiveMatches = [fixtureMatch];
+            _worldCupService.FinishMatch(homeTeam, awayTeam).Returns(Tuple.Create(runningMatches, archiveMatches));
 
-            handler.StartNewMatch(homeTeam, awayTeam);
-            handler.UpdateScore(homeTeam, awayTeam, 1, 0);
-            var runningMatches_pre = handler.GetRunningMatches();
-            var archiveMatches_pre = handler.GetArchiveMatches();
-            handler.FinishMatch(homeTeam, awayTeam);
+            // ACT
+            var running_matches = handler.StartNewMatch(homeTeam, awayTeam);
+            // just update the score - to have some data there
+            running_matches = handler.UpdateScore(homeTeam, awayTeam, 1, 0);
+            var matches_list = handler.FinishMatch(homeTeam, awayTeam);
 
-            var runningMatches_post = handler.GetRunningMatches();
-            var archiveMatches_post = handler.GetArchiveMatches();
 
             // check list of started matches - shall be removed
             // check list of archive matches - shall be included
+            Assert.That(homeTeam, Is.Not.EqualTo(awayTeam));
+            Assert.That(matches_list.Item1, Is.Empty);
+            Assert.That(matches_list.Item2, Is.EqualTo(running_matches));
         }
 
         [Test]

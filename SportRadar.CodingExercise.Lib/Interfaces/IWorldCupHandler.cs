@@ -2,10 +2,10 @@
 {
     public interface IWorldCupHandler
     {
-        IMatch StartNewMatch(string homeTeam, string awayTeam);
+        ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam);
         ICollection<IMatch> GetRunningMatches();
         ICollection<IMatch> GetArchiveMatches();
         IOrderedEnumerable<KeyValuePair<Tuple<int, long>, IMatch>> GetSummaryOfMatches();
-        IMatch FinishMatch(string homeTeam, string awayTeam);
+        Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam);
     }
 }
