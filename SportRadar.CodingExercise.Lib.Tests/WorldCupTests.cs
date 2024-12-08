@@ -1,9 +1,6 @@
 using NSubstitute;
-using NSubstitute.ReturnsExtensions;
 using SportRadar.CodingExercise.Lib.Interfaces;
-using SportRadar.CodingExercise.Lib.Models;
 using SportRadar.CodingExercise.Lib.Services;
-using System.Text.RegularExpressions;
 
 namespace SportRadar.CodingExercise.Lib.Tests
 {
@@ -28,7 +25,6 @@ namespace SportRadar.CodingExercise.Lib.Tests
         private IWorldCupService _worldCupService;
 
         private WorldCupHandler handler;
-        // jmock
 
         [SetUp]
         public void Setup()
@@ -67,7 +63,6 @@ namespace SportRadar.CodingExercise.Lib.Tests
         [TestCase("Argentina", "Australia")]
         public void TestWorldCup_StartNewMatch(string homeTeam, string awayTeam)
         {
-            // handler.GetRunningMatches();
             // check if already contains combination of home/away match
             // Arrange
             IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
@@ -105,8 +100,6 @@ namespace SportRadar.CodingExercise.Lib.Tests
             fixtureMatch.HomeTeam.Score = homeScore;
             fixtureMatch.AwayTeam.Score = awayScore;
             _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(matches);
-
-            //handler.StartNewMatch(homeTeam, awayTeam);
 
             var runningMatches = handler.GetRunningMatches();
             Assert.IsNotNull(runningMatches);
@@ -149,7 +142,6 @@ namespace SportRadar.CodingExercise.Lib.Tests
 
             _worldCupService.GetRunningMatches().Returns(runningMatches);
             _worldCupService.GetArchiveMatches().Returns(archiveMatches);
-
 
 
             // check list of started matches - shall be included

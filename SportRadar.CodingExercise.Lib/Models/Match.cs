@@ -1,5 +1,4 @@
 ﻿using SportRadar.CodingExercise.Lib.Interfaces;
-using System.Reflection.Metadata.Ecma335;
 
 namespace SportRadar.CodingExercise.Lib.Models
 {
