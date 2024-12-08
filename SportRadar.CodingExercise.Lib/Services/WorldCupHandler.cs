@@ -5,6 +5,13 @@ namespace SportRadar.CodingExercise.Lib.Services
     public class WorldCupHandler : IWorldCupHandler
     {
         private IWorldCupService _worldCupService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WorldCupHandler"/> class.
+        /// </summary>
+        /// <param name="worldCupService">The world cup service.</param>
+        /// <param name="match">The match.</param>
+        /// <param name="team">The team.</param>
         public WorldCupHandler(IWorldCupService worldCupService, IMatch match, ITeam team)
         {
             _worldCupService = worldCupService;
@@ -19,20 +26,6 @@ namespace SportRadar.CodingExercise.Lib.Services
         public ICollection<IMatch> GetRunningMatches()
         {
             return _worldCupService.GetRunningMatches();
-        }
-
-        public IOrderedEnumerable<KeyValuePair<Tuple<int, long>, IMatch>> GetSummaryOfMatches()
-        {
-            var runningMatches = _worldCupService.GetRunningMatches().OrderByDescending(o => o.CreatedTicks);
-            SortedList<Tuple<int, long>, IMatch> keyValuePairs = new SortedList<Tuple<int, long>, IMatch>();
-            int pos = 0;
-            foreach (var match in runningMatches)
-            {
-                pos++;
-                keyValuePairs.Add(Tuple.Create(item1: match.AwayTeam.Score + match.HomeTeam.Score, item2: match.CreatedTicks), match);
-            }
-
-            return keyValuePairs.OrderByDescending(k => k.Key);
         }
 
         public ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam)
@@ -55,5 +48,18 @@ namespace SportRadar.CodingExercise.Lib.Services
 
             return lists;
         }
+
+        public IOrderedEnumerable<KeyValuePair<Tuple<int, long>, IMatch>> GetSummaryOfMatches()
+        {
+            var runningMatches = _worldCupService.GetRunningMatches().OrderByDescending(o => o.CreatedTicks);
+            SortedList<Tuple<int, long>, IMatch> keyValuePairs = new SortedList<Tuple<int, long>, IMatch>();
+            foreach (var match in runningMatches)
+            {
+                keyValuePairs.Add(Tuple.Create(item1: match.AwayTeam.Score + match.HomeTeam.Score, item2: match.CreatedTicks), match);
+            }
+
+            return keyValuePairs.OrderByDescending(k => k.Key);
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using SportRadar.CodingExercise.Lib.Interfaces;
 using SportRadar.CodingExercise.Lib.Services;
 
@@ -16,7 +17,6 @@ namespace SportRadar.CodingExercise.Lib.Tests
     - FinishMatch. Removes match from the scoreboard and adds it to summaryCollection.
     - GetSummaryOfMatches (from currently played). NOTE : already finished shall not be contained (prepare another call for this)
      */
-
 
     public class WorldCupTests
     {
@@ -74,6 +74,38 @@ namespace SportRadar.CodingExercise.Lib.Tests
 
             Assert.IsNotNull(calculatedData);
             Assert.That(calculatedData, Is.EqualTo(matches));
+        }
+
+        [Test]
+        [TestCase("Mexico", "Canada")]
+        public void TestWorldCup_StartNewMatch_AlreadyExists(string homeTeam, string awayTeam)
+        {
+            // matches in progress
+            ICollection<IMatch> matches = new List<IMatch>();
+            matches.Add(new Models.Match("Mexico", "Canada", 0, 5));
+            matches.Add(new Models.Match("Spain", "Brazil", 10, 2));
+            matches.Add(new Models.Match("Germany", "France", 2, 2));
+            matches.Add(new Models.Match("Uruguay", "Italy", 6, 6));
+            matches.Add(new Models.Match("Argentina", "Australia", 3, 1));
+
+            _worldCupService.GetRunningMatches().Returns(matches);
+            ICollection<IMatch> matches_with_added = new List<IMatch>(matches);
+            matches_with_added.Add(new Models.Match("Mexico", "Canada"));
+            Exception exc = new Exception("Match already in progress");
+
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).Throws(exc);
+
+            var runningMatches = handler.GetRunningMatches();
+            Assert.IsNotNull(runningMatches);
+
+            try
+            {
+                var addedOneMatch = handler.StartNewMatch(homeTeam, awayTeam).Throws(new Exception());
+            }
+            catch (Exception ex)
+            {
+                Assert.That(ex.Message, Is.SameAs(exc.Message));
+            }
         }
 
         [Test]
