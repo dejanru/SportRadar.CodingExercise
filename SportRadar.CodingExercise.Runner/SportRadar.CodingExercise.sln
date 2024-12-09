@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectData", "ProjectData", "{BAD86FD4-F6E5-4821-A0CE-78136B5974EE}"
 	ProjectSection(SolutionItems) = preProject
 		..\Coding Exercise v1.11.pdf = ..\Coding Exercise v1.11.pdf
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Global

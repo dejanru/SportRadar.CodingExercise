@@ -1,6 +1,5 @@
 ﻿using SportRadar.CodingExercise.Lib.Interfaces;
 using SportRadar.CodingExercise.Lib.Services;
-using System.Reflection;
 
 internal class Program
 {
@@ -13,7 +12,7 @@ internal class Program
 
         while (true)
         {
-            Console.WriteLine("Enter a number between 1 and 5: ");
+            Console.WriteLine("Enter a number between 0 and 6: ");
             Console.WriteLine("1 : Get current state (running matches and archive matches)");
             Console.WriteLine("2 : Start new match");
             Console.WriteLine("3 : Update score for existing match");
