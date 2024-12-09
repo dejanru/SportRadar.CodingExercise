@@ -26,13 +26,6 @@ e. Argentina 3 - Australia 1
 4. Argentina 3 - Australia 1
 5. Germany 2 - France 2
 
-## SportRadar.CodingExercise.Runner
-
-Interactive console app for playing with library.
-
-dotnet run -- configuration Debug
-
-
 
 ## SportRadar.CodingExercise.Lib.Tests 
 using nSubstitute to mock objects and simplify tests.
