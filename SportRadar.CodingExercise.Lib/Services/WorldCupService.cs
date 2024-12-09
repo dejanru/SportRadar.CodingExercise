@@ -14,17 +14,17 @@ namespace SportRadar.CodingExercise.Lib.Services
             _archiveMatches = new List<IMatch>();
         }
 
-        public ICollection<IMatch> GetArchiveMatches()
+        public async Task<ICollection<IMatch>> GetArchiveMatches()
         {
             return _archiveMatches;
         }
 
-        public ICollection<IMatch> GetRunningMatches()
+        public async Task<ICollection<IMatch>> GetRunningMatches()
         {
             return _runningMatches;
         }
 
-        public ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam)
+        public async Task<ICollection<IMatch>> StartNewMatch(string homeTeam, string awayTeam)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace SportRadar.CodingExercise.Lib.Services
             return _runningMatches;
         }
 
-        public ICollection<IMatch> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
+        public async Task<ICollection<IMatch>> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
             var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
             if (match == null)
@@ -75,7 +75,7 @@ namespace SportRadar.CodingExercise.Lib.Services
             return _runningMatches;
         }
 
-        public Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam)
+        public async Task<Tuple<ICollection<IMatch>, ICollection<IMatch>>> FinishMatch(string homeTeam, string awayTeam)
         {
             var match = _runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
             if (match == null)

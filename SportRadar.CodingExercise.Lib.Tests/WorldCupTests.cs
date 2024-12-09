@@ -43,16 +43,16 @@ namespace SportRadar.CodingExercise.Lib.Tests
         }
 
         [Test]
-        public void TestWorldCup_WorldCupExists()
+        public async Task TestWorldCup_WorldCupExists()
         {
             Assert.That(handler, Is.Not.Null);
         }
 
         [Test]
-        public void TestWorldCup_WeShallHaveRunningMatches_And_ArchiveMatches()
+        public async Task TestWorldCup_WeShallHaveRunningMatches_And_ArchiveMatches()
         {
-            Assert.That(handler.GetRunningMatches(), Is.Not.Null);
-            Assert.That(handler.GetArchiveMatches(), Is.Not.Null);
+            Assert.That(await handler.GetRunningMatches(), Is.Not.Null);
+            Assert.That(await handler.GetArchiveMatches(), Is.Not.Null);
         }
 
         [Test]
@@ -61,24 +61,27 @@ namespace SportRadar.CodingExercise.Lib.Tests
         [TestCase("Germany", "France")]
         [TestCase("Uruguay", "Italy")]
         [TestCase("Argentina", "Australia")]
-        public void TestWorldCup_StartNewMatch(string homeTeam, string awayTeam)
+        public async Task TestWorldCup_StartNewMatchAsync(string homeTeam, string awayTeam)
         {
             // check if already contains combination of home/away match
             // Arrange
             IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
-            ICollection<IMatch> matches = [fixtureMatch];
-            handler.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(matches);
+            ICollection<IMatch> matches = [fixtureMatch ];
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).ReturnsForAnyArgs(Task.FromResult(matches));
 
             // well, use service to calculate the data and then compare with fixture and assert for correctness
-            var calculatedData = handler.StartNewMatch(homeTeam, awayTeam);
+            var calculatedData = await handler.StartNewMatch(homeTeam, awayTeam);
 
             Assert.IsNotNull(calculatedData);
             Assert.That(calculatedData, Is.EqualTo(matches));
+
+            // Verify that the method was called
+            await _worldCupService.Received(1).StartNewMatch(homeTeam, awayTeam);
         }
 
         [Test]
         [TestCase("Mexico", "Canada")]
-        public void TestWorldCup_StartNewMatch_AlreadyExists(string homeTeam, string awayTeam)
+        public async Task TestWorldCup_StartNewMatch_AlreadyExists(string homeTeam, string awayTeam)
         {
             // matches in progress
             ICollection<IMatch> matches = new List<IMatch>();
@@ -114,7 +117,7 @@ namespace SportRadar.CodingExercise.Lib.Tests
         [TestCase("Mexico", "Canada", 0, 3)]
         [TestCase("Mexico", "Canada", 0, 4)]
         [TestCase("Mexico", "Canada", 0, 5)]
-        public void TestWorldCup_UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
+        public async Task TestWorldCup_UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
             // Arrange
             IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
@@ -126,20 +129,20 @@ namespace SportRadar.CodingExercise.Lib.Tests
                 new Models.Match("Uruguay", "Italy"),
                 new Models.Match("Argentina", "Australia"),
             ];
-            _worldCupService.StartNewMatch(homeTeam, awayTeam).Returns(matches);
-            _worldCupService.GetRunningMatches().Returns(matches);
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).Returns(Task.FromResult(matches));
+            _worldCupService.GetRunningMatches().Returns(Task.FromResult(matches));
 
             fixtureMatch.HomeTeam.Score = homeScore;
             fixtureMatch.AwayTeam.Score = awayScore;
-            _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(matches);
+            _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore).Returns(Task.FromResult(matches));
 
-            var runningMatches = handler.GetRunningMatches();
+            var runningMatches = await handler.GetRunningMatches();
             Assert.IsNotNull(runningMatches);
 
             var match = runningMatches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam);
             Assert.IsNotNull(match);
 
-            handler.UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
+            await handler.UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
             // update list what shall be returned after update
             matches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam).HomeTeam.Score = homeScore;
             matches.FirstOrDefault(x => x.HomeTeam.Name == homeTeam && x.AwayTeam.Name == awayTeam).AwayTeam.Score = awayScore;
@@ -150,6 +153,10 @@ namespace SportRadar.CodingExercise.Lib.Tests
             Assert.IsNotNull(updatedMatch);
             Assert.That(updatedMatch.HomeTeam.Score, Is.EqualTo(homeScore));
             Assert.That(updatedMatch.AwayTeam.Score, Is.EqualTo(awayScore));
+
+            // Verify that the method was called
+            await _worldCupService.Received(1).GetRunningMatches();
+            await _worldCupService.Received(1).UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
         }
 
         [Test]
@@ -158,7 +165,7 @@ namespace SportRadar.CodingExercise.Lib.Tests
         [TestCase("Germany", "France")]
         [TestCase("Uruguay", "Italy")]
         [TestCase("Argentina", "Australia")]
-        public void TestWorldCup_FinishMatchInProgress(string homeTeam, string awayTeam)
+        public async Task TestWorldCup_FinishMatchInProgress(string homeTeam, string awayTeam)
         {
             // start new match
             IMatch fixtureMatch = new Models.Match(homeTeam, awayTeam);
@@ -166,14 +173,14 @@ namespace SportRadar.CodingExercise.Lib.Tests
             ICollection<IMatch> archiveMatches = [];
 
 
-            _worldCupService.StartNewMatch(homeTeam, awayTeam).Returns(runningMatches);
+            _worldCupService.StartNewMatch(homeTeam, awayTeam).Returns(Task.FromResult(runningMatches));
 
             fixtureMatch.HomeTeam.Score = 1;
             fixtureMatch.AwayTeam.Score = 0;
-            _worldCupService.UpdateScore(homeTeam, awayTeam, 1, 0).Returns(runningMatches);
+            _worldCupService.UpdateScore(homeTeam, awayTeam, 1, 0).Returns(Task.FromResult(runningMatches));
 
-            _worldCupService.GetRunningMatches().Returns(runningMatches);
-            _worldCupService.GetArchiveMatches().Returns(archiveMatches);
+            _worldCupService.GetRunningMatches().Returns(Task.FromResult(runningMatches));
+            _worldCupService.GetArchiveMatches().Returns(Task.FromResult(archiveMatches));
 
 
             // check list of started matches - shall be included
@@ -181,13 +188,13 @@ namespace SportRadar.CodingExercise.Lib.Tests
             // simulate moving between lists
             runningMatches = [];
             archiveMatches = [fixtureMatch];
-            _worldCupService.FinishMatch(homeTeam, awayTeam).Returns(Tuple.Create(runningMatches, archiveMatches));
+            _worldCupService.FinishMatch(homeTeam, awayTeam).Returns(Task.FromResult(Tuple.Create(runningMatches, archiveMatches)));
 
             // ACT
-            var running_matches = handler.StartNewMatch(homeTeam, awayTeam);
+            var running_matches = await handler.StartNewMatch(homeTeam, awayTeam);
             // just update the score - to have some data there
-            running_matches = handler.UpdateScore(homeTeam, awayTeam, 1, 0);
-            var matches_list = handler.FinishMatch(homeTeam, awayTeam);
+            running_matches = await handler.UpdateScore(homeTeam, awayTeam, 1, 0);
+            var matches_list = await handler.FinishMatch(homeTeam, awayTeam);
 
 
             // check list of started matches - shall be removed
@@ -195,10 +202,15 @@ namespace SportRadar.CodingExercise.Lib.Tests
             Assert.That(homeTeam, Is.Not.EqualTo(awayTeam));
             Assert.That(matches_list.Item1, Is.Empty);
             Assert.That(matches_list.Item2, Is.EqualTo(running_matches));
+
+            // Verify that the method was called
+            await _worldCupService.Received(1).StartNewMatch(homeTeam, awayTeam);
+            await _worldCupService.Received(1).UpdateScore(homeTeam, awayTeam, 1, 0);
+            await _worldCupService.Received(1).FinishMatch(homeTeam, awayTeam);
         }
 
         [Test]
-        public void TestWorldCup_GetSummaryOfMatches()
+        public async Task TestWorldCup_GetSummaryOfMatches()
         {
             // NOTE : handles only matches in progress, finished shall not be contained
 
@@ -217,10 +229,10 @@ namespace SportRadar.CodingExercise.Lib.Tests
             matches.Add(new Models.Match("Uruguay", "Italy", 6, 6));
             matches.Add(new Models.Match("Argentina", "Australia", 3, 1));
 
-            _worldCupService.GetRunningMatches().Returns(matches);
+            _worldCupService.GetRunningMatches().Returns(Task.FromResult(matches));
 
             // check we have matches data
-            var runningMatches = handler.GetRunningMatches();
+            var runningMatches = await handler.GetRunningMatches();
             Assert.IsNotNull(runningMatches);
 
             var res = handler.GetSummaryOfMatches();
@@ -234,12 +246,16 @@ namespace SportRadar.CodingExercise.Lib.Tests
             //      3.Mexico 0 - Canada 5
             //      4.Argentina 3 - Australia 1
             //      5.Germany 2 - France 2
-            var resultsList = res.ToList();
+            var resultsList = res.Result.ToList();
             Assert.That(resultsList[0].Value.HomeTeam.Name, Is.EqualTo("Uruguay"));
             Assert.That(resultsList[1].Value.HomeTeam.Name, Is.EqualTo("Spain"));
             Assert.That(resultsList[2].Value.HomeTeam.Name, Is.EqualTo("Mexico"));
             Assert.That(resultsList[3].Value.HomeTeam.Name, Is.EqualTo("Argentina"));
             Assert.That(resultsList[4].Value.HomeTeam.Name, Is.EqualTo("Germany"));
+
+            // Verify that the method was called
+            // note : we have 2 calls
+            await _worldCupService.Received(2).GetRunningMatches();
         }
     }
 }

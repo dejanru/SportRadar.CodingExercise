@@ -9,13 +9,13 @@
         /// Gets the running - ongoing matches.
         /// </summary>
         /// <returns></returns>
-        ICollection<IMatch> GetRunningMatches();
+        Task<ICollection<IMatch>> GetRunningMatches();
 
         /// <summary>
         /// Gets the archive matches. Means matches already finished.
         /// </summary>
         /// <returns></returns>
-        ICollection<IMatch> GetArchiveMatches();
+        Task<ICollection<IMatch>> GetArchiveMatches();
 
         /// <summary>
         /// Starts the new match.
@@ -23,7 +23,7 @@
         /// <param name="homeTeam">The home team name.</param>
         /// <param name="awayTeam">The away team name.</param>
         /// <returns></returns>
-        ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam);
+        Task<ICollection<IMatch>> StartNewMatch(string homeTeam, string awayTeam);
 
         /// <summary>
         /// Updates the score. Only running matches affected.
@@ -33,13 +33,13 @@
         /// <param name="homeScore">The home score.</param>
         /// <param name="awayScore">The away score.</param>
         /// <returns></returns>
-        ICollection<IMatch> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore);
+        Task<ICollection<IMatch>> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore);
 
         /// <summary>
         /// Finishes the match.
         /// <param name="homeTeam">The home team.</param>
         /// <param name="awayTeam">The away team.</param>
         /// <returns>Collections of running matches and finished matches.</returns>
-        Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam);
+        Task<Tuple<ICollection<IMatch>, ICollection<IMatch>>> FinishMatch(string homeTeam, string awayTeam);
     }
 }

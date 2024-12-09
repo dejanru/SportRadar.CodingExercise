@@ -18,42 +18,45 @@ namespace SportRadar.CodingExercise.Lib.Services
         }
 
 
-        public ICollection<IMatch> GetArchiveMatches()
+        public async Task<ICollection<IMatch>> GetArchiveMatches()
         {
-            return _worldCupService.GetArchiveMatches();
+            var res = await _worldCupService.GetArchiveMatches();
+
+            return res;
         }
 
-        public ICollection<IMatch> GetRunningMatches()
+        public async Task<ICollection<IMatch>> GetRunningMatches()
         {
-            return _worldCupService.GetRunningMatches();
+            return await _worldCupService.GetRunningMatches();
         }
 
-        public ICollection<IMatch> StartNewMatch(string homeTeam, string awayTeam)
+        public async Task<ICollection<IMatch>> StartNewMatch(string homeTeam, string awayTeam)
         {
-            var match = _worldCupService.StartNewMatch(homeTeam, awayTeam);
+            var match = await _worldCupService.StartNewMatch(homeTeam, awayTeam);
 
             return match;
         }
 
-        public ICollection<IMatch> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
+        public async Task<ICollection<IMatch>> UpdateScore(string homeTeam, string awayTeam, int homeScore, int awayScore)
         {
-            var match = _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
+            var match = await _worldCupService.UpdateScore(homeTeam, awayTeam, homeScore, awayScore);
 
             return match;
         }
 
-        public Tuple<ICollection<IMatch>, ICollection<IMatch>> FinishMatch(string homeTeam, string awayTeam)
+        public async Task<Tuple<ICollection<IMatch>, ICollection<IMatch>>> FinishMatch(string homeTeam, string awayTeam)
         {
-            var lists = _worldCupService.FinishMatch(homeTeam, awayTeam);
+            var lists = await _worldCupService.FinishMatch(homeTeam, awayTeam);
 
             return lists;
         }
 
-        public IOrderedEnumerable<KeyValuePair<Tuple<int, long>, IMatch>> GetSummaryOfMatches()
+        public async Task<IOrderedEnumerable<KeyValuePair<Tuple<int, long>, IMatch>>> GetSummaryOfMatches()
         {
-            var runningMatches = _worldCupService.GetRunningMatches().OrderByDescending(o => o.CreatedTicks);
+            var runningMatches = await _worldCupService.GetRunningMatches();
+            var runningMatches_ordered = runningMatches.OrderByDescending(o => o.CreatedTicks);
             SortedList<Tuple<int, long>, IMatch> keyValuePairs = new SortedList<Tuple<int, long>, IMatch>();
-            foreach (var match in runningMatches)
+            foreach (var match in runningMatches_ordered)
             {
                 keyValuePairs.Add(Tuple.Create(item1: match.AwayTeam.Score + match.HomeTeam.Score, item2: match.CreatedTicks), match);
             }
